@@ -1,0 +1,24 @@
+[package]
+name = "webviewcontrol"
+version = "0.0.1"
+authors = ["Chris Morgan <me@chrismorgan.info>"]
+edition = "2018"
+
+[features]
+default = ["edgehtml", "mshtml"]
+
+# (These features should/will only take effect on Windows.)
+edgehtml = ["winrt"]
+mshtml = [] # TODO
+
+[dependencies]
+winit = "0.18.1"
+
+[target."cfg(target_os = \"windows\")".dependencies.winapi]
+version = "0.3.6"
+features = ["roapi", "winerror", "synchapi", "combaseapi", "winbase"]
+
+[target."cfg(target_os = \"windows\")".dependencies.winrt]
+version = "0.5.1"
+features = ["windows-web"]
+optional = true
