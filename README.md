@@ -16,5 +16,12 @@ A cross-platform web view control, meeting these requirements:
 
 ## Status
 
-Experimenting with Windows.Web.Ui.Interop.WebViewControl (EdgeHTML).
-It’s not cooperating with me.
+Windows.Web.Ui.Interop.WebViewControl (EdgeHTML) basic usage is working. Nothing more advanced than navigating to a URL is really supported at present.
+
+No other browser engines are currently supported.
+
+winit usage is working fine.
+
+druid-shell usage is not panning out terribly well, because it’s drawing on top of this. You can see the contents of the WebViewControl while resizing the window, but at other times you’ll see blackness. You are unable to interact with the contents, either.
+
+druid usage is unmaintained (it compiles, though probably not the example, but hasn’t been touched since before major changes; I don’t think I ever had it working, either; I went and focused on druid-shell instead).

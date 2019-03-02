@@ -5,20 +5,65 @@ authors = ["Chris Morgan <me@chrismorgan.info>"]
 edition = "2018"
 
 [features]
-default = ["edgehtml", "mshtml"]
+default = [
+	"edgehtml",
+	"druid", "druid-shell", "piet-common",
+	"winit",
+]
 
 # (These features should/will only take effect on Windows.)
-edgehtml = ["winrt"]
+edgehtml = ["winrt", "winapi/roapi", "winapi/winerror"]
 mshtml = [] # TODO
 
+# gtk-webkit2 is primarily intended for Linux use
+#gtk-webkit2 = ["gtk-webkit2-sys"]
+
+# Cocoa is macOS-only.
+#cocoa = []
+
 [dependencies]
-winit = "0.18.1"
+lazy_static = "1.2.0"
+
+[dependencies.druid]
+path = "../druid"
+optional = true
+
+[dependencies.piet-common]
+version = "0.0.2"
+optional = true
+
+[dependencies.druid-shell]
+path = "../druid/druid-shell"
+optional = true
+
+[dependencies.winit]
+#path = "../winit"
+git = "https://github.com/tomaka/winit"
+branch = "eventloop-2.0"
+optional = true
 
 [target."cfg(target_os = \"windows\")".dependencies.winapi]
 version = "0.3.6"
-features = ["roapi", "winerror", "synchapi", "combaseapi", "winbase"]
+#features = ["roapi", "winerror", "synchapi", "combaseapi", "winbase"]
+optional = true
 
 [target."cfg(target_os = \"windows\")".dependencies.winrt]
 version = "0.5.1"
 features = ["windows-web"]
 optional = true
+
+# [features]
+# cocoa-wkwebview = […]
+# # It’s called edgehtml-win32 because it’s using the EdgeHTML engine via the Win32 out-of-process wrapper (Windows.Web.UI.Interop.WebViewControl) rather than via the older and preferred UWP interface which is potentially more efficient and may resolve problems with control focus and menus, but bothersome due to sandboxing and setting up the appx package, and possibly requiring C++/WinRT code. Still, edgehtml-uwp may come in the future.
+# edgehtml-win32 = […]
+# gtk-webkit2 = […]
+# mshtml = […]
+# 
+# [target."cfg(target_os = \"macos\")".features]
+# default = ["cocoa-wkwebview"]
+# 
+# [target."cfg(target_os = \"windows\")".features]
+# default = ["edgehtml-win32", "mshtml"]
+# 
+# [target."cfg(not(any(target_os = \"macos\", target_os = \"windows\")))".features]
+# default = ["gtk-webkit2"]
