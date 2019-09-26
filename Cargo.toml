@@ -7,7 +7,8 @@ edition = "2018"
 [features]
 default = [
 	"edgehtml",
-	"druid", "druid-shell", "piet-common",
+	"druid-shell",
+	# "druid",
 	"winit",
 ]
 
@@ -26,10 +27,6 @@ lazy_static = "1.2.0"
 
 [dependencies.druid]
 path = "../druid"
-optional = true
-
-[dependencies.piet-common]
-version = "0.0.2"
 optional = true
 
 [dependencies.druid-shell]

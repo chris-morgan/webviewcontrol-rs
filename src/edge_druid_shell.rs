@@ -1,16 +1,10 @@
 use std::any::Any;
 use std::cell::Cell;
-use std::io;
-use std::ptr;
 
-use winapi::shared::windef::{RECT};
-use winapi::shared::minwindef::{FALSE};
-use winapi::um::winuser;
+use druid_shell::piet::Piet;
+use druid_shell::window::{WindowHandle, WinHandler, WinCtx};
+use druid_shell::runloop;
 
-use druid_shell::window::{WindowHandle, WinHandler};
-use druid_shell::win_main;
-
-use crate::Error;
 use crate::edge::{Process, HwndType, Control};
 
 pub struct WebViewHandler<F> where F: FnOnce(Control) + 'static {
@@ -42,10 +36,7 @@ impl<F> WebViewHandler<F> where F: FnOnce(Control) + 'static {
 }
 
 impl<F> WinHandler for WebViewHandler<F> where F: FnOnce(Control) + 'static {
-    fn connect(&self, handle: &WindowHandle) {
-        println!("Connect");
-        let hwnd = handle.get_hwnd().unwrap();
-
+    fn connect(&mut self, handle: &WindowHandle) {
         // This is nasty. No good place to send error handling because of how we had to create the
         // handler before the window.
         self.control.set(Some(self.process.create_control(
@@ -61,16 +52,16 @@ impl<F> WinHandler for WebViewHandler<F> where F: FnOnce(Control) + 'static {
         ).unwrap()));
     }
 
-    fn paint(&self, ctx: &mut piet_common::Piet) -> bool {
+    fn paint(&mut self, _piet: &mut Piet, _ctx: &mut dyn WinCtx) -> bool {
         println!("Paint");
         false
     }
 
-    fn as_any(&self) -> &dyn Any {
+    fn as_any(&mut self) -> &mut dyn Any {
         self
     }
 
-    fn size(&self, width: u32, height: u32) {
+    fn size(&mut self, width: u32, height: u32, _ctx: &mut dyn WinCtx) {
         // FIXME: If the control isn’t created yet,
         println!("Size: {} × {}", width, height);
         self.with_control(|control| {
@@ -84,8 +75,8 @@ impl<F> WinHandler for WebViewHandler<F> where F: FnOnce(Control) + 'static {
         });
     }
 
-    fn destroy(&self) {
+    fn destroy(&mut self, _ctx: &mut dyn WinCtx) {
         // The WebViewProcess will quit without our assistance, so don’t worry about it.
-        win_main::request_quit();
+        runloop::request_quit();
     }
 }

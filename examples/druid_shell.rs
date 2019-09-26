@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
-use druid_shell::win_main;
-use druid_shell::platform::WindowBuilder;
+use druid_shell::runloop;
+use druid_shell::platform::{WindowBuilder, PresentStrategy};
 
 use webviewcontrol::edge::{self, runtime_context, Process, Control, WebView};
 use webviewcontrol::edge_druid_shell::WebViewHandler;
@@ -24,8 +24,9 @@ fn main() {
     let process = Process::new();
     druid_shell::init();
 
-    let mut run_loop = win_main::RunLoop::new();
+    let mut run_loop = runloop::RunLoop::new();
     let mut builder = WindowBuilder::new();
+    builder.set_present_strategy(PresentStrategy::Hwnd);
     builder.set_handler(Box::new(WebViewHandler::new(
         process,
         Some(move |control: Control| {
