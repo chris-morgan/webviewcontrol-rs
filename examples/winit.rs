@@ -59,8 +59,9 @@ fn main() {
                 event: WindowEvent::Resized(size),
                 ..
             } => {
-                let size: (u32, u32) = size.to_physical(window.get_hidpi_factor()).into();
-                control.resize(None, Some((size.0 as i32, size.1 as i32)));
+                let size: (u32, u32) = size.to_physical(window.hidpi_factor()).into();
+                // Error in resizing? Meh.
+                let _ = control.resize(None, Some((size.0 as i32, size.1 as i32)));
             }
             _ => (),
         }

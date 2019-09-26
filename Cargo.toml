@@ -37,9 +37,7 @@ path = "../druid/druid-shell"
 optional = true
 
 [dependencies.winit]
-#path = "../winit"
-git = "https://github.com/tomaka/winit"
-branch = "eventloop-2.0"
+version = "0.20.0-alpha3"
 optional = true
 
 [target."cfg(target_os = \"windows\")".dependencies.winapi]
