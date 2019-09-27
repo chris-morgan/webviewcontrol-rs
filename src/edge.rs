@@ -49,7 +49,9 @@ use winrt::windows::foundation::{
     TypedEventHandler, Uri,
 };
 use winrt::windows::web::ui::{
-    interop::{IWebViewControlSite, WebViewControl, WebViewControlProcess},
+    interop::{
+        IWebViewControlSite, WebViewControl, WebViewControlMoveFocusReason, WebViewControlProcess,
+    },
     IWebViewControl,
     //IWebViewControl2,
     WebViewControlScriptNotifyEventArgs,
@@ -227,6 +229,7 @@ impl Process {
                 },
                 control: None,
                 queued_bounds_update: None,
+                queued_focus: false,
             })),
         };
 
@@ -271,6 +274,7 @@ pub struct ControlInner {
 
     // Certain operations may be queued while the control is loading. For example, handling resize.
     queued_bounds_update: Option<Rect>,
+    queued_focus: bool,
 }
 
 impl ControlInner {
@@ -315,6 +319,16 @@ impl ControlInner {
         }
         Ok(())
     }
+
+    fn focus(&mut self) -> Result<(), Error> {
+        if let Some(ref control) = self.control {
+            let control_site = control.query_interface::<IWebViewControlSite>().unwrap();
+            control_site.move_focus(WebViewControlMoveFocusReason::Programmatic)?;
+        } else {
+            self.queued_focus = true;
+        }
+        Ok(())
+    }
 }
 
 impl Control {
@@ -327,6 +341,13 @@ impl Control {
             // There’s nothing we can do if this fails; maybe better to be silent like this?
             let _ = inner.update_bounds_from_rect(rect);
         }
+        if inner.queued_focus {
+            let _ = inner.focus();
+        }
+    }
+
+    pub fn focus(&self) -> Result<(), Error> {
+        self.inner.borrow_mut().focus()
     }
 
     pub fn resize(

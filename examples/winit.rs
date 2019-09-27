@@ -43,24 +43,29 @@ fn main() {
         }),
     )
     .unwrap();
+    control.focus();
 
     event_loop.run_return(|event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
         match event {
-            Event::WindowEvent {
-                event: WindowEvent::CloseRequested,
-                ..
-            } => {
-                *control_flow = ControlFlow::Exit;
-            }
-            Event::WindowEvent {
-                event: WindowEvent::Resized(size),
-                ..
-            } => {
-                let size: (u32, u32) = size.to_physical(window.hidpi_factor()).into();
-                // Error in resizing? Meh.
-                let _ = control.resize(None, Some((size.0 as i32, size.1 as i32)));
-            }
+            Event::WindowEvent { window_id, event } => match event {
+                WindowEvent::Focused(false) => {
+                    println!("Window lost focus, TODO record whether control was focused");
+                }
+                WindowEvent::Focused(true) => {
+                    println!("Window gained focus, TODO only refocus control if it was before");
+                    control.focus();
+                }
+                WindowEvent::CloseRequested => {
+                    *control_flow = ControlFlow::Exit;
+                }
+                WindowEvent::Resized(size) => {
+                    let size: (u32, u32) = size.to_physical(window.hidpi_factor()).into();
+                    // Error in resizing? Meh.
+                    let _ = control.resize(None, Some((size.0 as i32, size.1 as i32)));
+                }
+                _ => (),
+            },
             _ => (),
         }
     });
