@@ -342,7 +342,7 @@ impl Control {
         }
     }
 
-    pub fn resize(&self, mut position: Option<(i32, i32)>, size: Option<(i32, i32)>)
+    pub fn resize(&self, position: Option<(i32, i32)>, size: Option<(i32, i32)>)
     -> Result<(), Error> {
         let mut inner = self.inner.borrow_mut();
         if !inner.is_window_hwnd {
