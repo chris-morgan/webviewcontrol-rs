@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use druid_shell::win_main;
 use druid_shell::platform::WindowBuilder;
 
-use druid::{Ui, UiMain, UiState};
+use druid::{AppLauncher, WindowDesc};
 
 use winrt::windows::foundation::Uri;
 use winrt::windows::web::ui::interop::{WebViewControl};
@@ -27,29 +27,26 @@ fn main() {
     println!("Opening a web view to {}", url);
 
     let process = Process::new();
-    let widget = process
-        .new_widget(
-            &window,
-            Some(move |control: &winrt::ComPtr<WebViewControl>| {
-                println!("Control created!");
-                control
-                    .navigate(
-                        &Uri::create_uri(&FastHString::from(&*url)).unwrap(),
-                    )
-                    .unwrap();
-            }),
+    let widget = ();
+
+    let window = WindowDesc::new(
+        process
+            .new_widget(
+                &window,
+                Some(move |control: &winrt::ComPtr<WebViewControl>| {
+                    println!("Control created!");
+                    control
+                        .navigate(
+                            &Uri::create_uri(&FastHString::from(&*url)).unwrap(),
+                        )
+                        .unwrap();
+                }),
+            )
+            .unwrap
         )
-        .unwrap();
-
-    druid_shell::init();
-
-    let mut run_loop = win_main::RunLoop::new();
-    let mut builder = WindowBuilder::new();
-    let mut state = UiState::new();
-    state.set_root(widget.ui(&mut state));
-    builder.set_handler(Box::new(UiMain::new(state)));
-    builder.set_title("It’s a WebView! (in theory, anyway)");
-    let window = builder.build().unwrap();
-    window.show();
-    run_loop.run();
+        .title("It’s a WebView! (in theory, anyway)");
+    AppLauncher::with_window(window)
+        .use_simple_logger()
+        .launch(())
+        .expect("launch failed");
 }
