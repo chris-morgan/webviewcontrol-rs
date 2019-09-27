@@ -10,12 +10,6 @@ extern crate lazy_static;
 #[cfg(all(windows, feature = "edgehtml"))]
 pub mod edge;
 
-#[cfg(all(windows, feature = "edgehtml", feature = "druid-shell"))]
-pub mod edge_druid_shell;
-
-#[cfg(all(windows, feature = "edgehtml", feature = "druid"))]
-pub mod edge_druid;
-
 #[cfg(all(windows, feature = "edgehtml", feature = "winit"))]
 pub mod edge_winit;
 

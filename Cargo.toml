@@ -7,8 +7,6 @@ edition = "2018"
 [features]
 default = [
 	"edgehtml",
-	"druid-shell",
-	# "druid",
 	"winit",
 ]
 
@@ -24,14 +22,6 @@ mshtml = [] # TODO
 
 [dependencies]
 lazy_static = "1.2.0"
-
-[dependencies.druid]
-path = "../druid"
-optional = true
-
-[dependencies.druid-shell]
-path = "../druid/druid-shell"
-optional = true
 
 [dependencies.winit]
 version = "0.20.0-alpha3"

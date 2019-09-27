@@ -22,6 +22,4 @@ No other browser engines are currently supported.
 
 winit usage is working fine.
 
-druid-shell usage is not panning out terribly well, because it’s drawing on top of this. You can see the contents of the WebViewControl while resizing the window, but at other times you’ll see blackness. You are unable to interact with the contents, either.
-
-druid usage is unmaintained (it compiles, though probably not the example, but hasn’t been touched since before major changes; I don’t think I ever had it working, either; I went and focused on druid-shell instead).
+Druid used to be partially supported, but there were serious issues that are unlikely to be resolved any time soon due to Druid being yet immature and currently opinionated about owning the entire surface, so I deleted the code after 5c746ca06af323303322c237da6603ad89b404d1. Eventually Druid might be compatible with multiple HWNDs and this type of drawing, but don’t hold your breath for it being in the near future. I hope that it works eventually, because I see potential in a hybrid app that’s partially web tech and partially native tech.
