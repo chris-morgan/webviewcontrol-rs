@@ -22,7 +22,7 @@ pub fn new_control<F>(
     callback: Option<F>,
 ) -> Result<Control, Error>
 where
-    F: FnOnce(Control) + 'static
+    F: FnOnce(Control) + 'static,
 {
     let window_hwnd = window.hwnd() as *mut _;
     let hwnd_type = match hwnd_type {
@@ -36,7 +36,10 @@ where
         .unwrap_or(LogicalPosition { x: 0.0, y: 0.0 })
         .to_physical(dpi_factor)
         .into();
-    let size: (u32, u32) = size.unwrap_or(window.inner_size()).to_physical(dpi_factor).into();
+    let size: (u32, u32) = size
+        .unwrap_or(window.inner_size())
+        .to_physical(dpi_factor)
+        .into();
     process.create_control(
         hwnd_type,
         // The true size will be sorted out by size(), which will queue the size change until

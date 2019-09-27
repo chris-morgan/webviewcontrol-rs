@@ -1,5 +1,5 @@
 //! A control backed by a Win32 EdgeHTML WebView.
-//! 
+//!
 //! This uses Windows.Web.UI.Interop.WebViewControl, and requires at a minimum the October 2018
 //! build of Windows 10, 17763. (TODO: support detecting whether it’ll work ahead of time.)
 //!
@@ -47,8 +47,8 @@ use winapi::um::{libloaderapi, winuser};
 use winapi::winrt::roapi::{RoInitialize, RO_INIT_SINGLETHREADED};
 
 use winrt::windows::foundation::{
-    AsyncOperationCompletedHandler, EventRegistrationToken, Rect, TypedEventHandler, Uri,
-    metadata::ApiInformation,
+    metadata::ApiInformation, AsyncOperationCompletedHandler, EventRegistrationToken, Rect,
+    TypedEventHandler, Uri,
 };
 use winrt::windows::web::ui::{
     interop::{IWebViewControlSite, WebViewControl, WebViewControlProcess},
@@ -103,9 +103,8 @@ static HOST_CLASS_NAME: [u16; 20] = [
 ];
 
 pub fn is_available() -> bool {
-    ApiInformation::is_type_present(
-        &FastHString::from("Windows.Web.UI.Interop.WebViewControl"),
-    ).unwrap_or(false)
+    ApiInformation::is_type_present(&FastHString::from("Windows.Web.UI.Interop.WebViewControl"))
+        .unwrap_or(false)
     // When we start using AddInitializeScript, which has a higher baseline, switch to this:
     // ApiInformation::is_method_present(
     //     &FastHString::from("Windows.Web.UI.Interop.WebViewControl"),
@@ -135,11 +134,7 @@ unsafe fn register_host_class() {
 /// The provided parent SHOULD not be null. Things may break if it is.
 ///
 /// The provided position and size are specified in physical pixels.
-fn new_hwnd(
-    parent: HWND,
-    position: (i32, i32),
-    size: (i32, i32),
-) -> Result<HWND, Error> {
+fn new_hwnd(parent: HWND, position: (i32, i32), size: (i32, i32)) -> Result<HWND, Error> {
     // Idempotent, as subsequent attempts will silently fail; meh.
     unsafe {
         register_host_class();
@@ -180,9 +175,7 @@ pub fn runtime_context() -> RuntimeContext {
         "failed to call RoInitialize: error {}",
         hr
     );
-    unsafe {
-        mem::transmute::<(), RuntimeContext>(())
-    }
+    unsafe { mem::transmute::<(), RuntimeContext>(()) }
 }
 
 /// What HWND to associate the WebViewControl with, and how to handle resizing.
@@ -229,17 +222,15 @@ impl Process {
             HwndType::NewHwndInWindow(parent) => new_hwnd(parent, position, size)?,
         };
 
-        let operation = self
-            .process
-            .create_web_view_control_async(
-                hwnd as usize as i64,
-                Rect {
-                    X: position.0 as f32,
-                    Y: position.1 as f32,
-                    Width: size.0 as f32,
-                    Height: size.1 as f32,
-                },
-            )?;
+        let operation = self.process.create_web_view_control_async(
+            hwnd as usize as i64,
+            Rect {
+                X: position.0 as f32,
+                Y: position.1 as f32,
+                Width: size.0 as f32,
+                Height: size.1 as f32,
+            },
+        )?;
 
         let control = Control {
             inner: Rc::new(RefCell::new(ControlInner {
@@ -258,18 +249,20 @@ impl Process {
         let mut control2 = FakeSend(control.clone());
         let mut callback = FakeSend(callback);
         operation
-            .set_completed(&AsyncOperationCompletedHandler::new(move |sender, _args| {
-                // When it doesn’t require Send, the following four lines should reduce to this:
-                // control = operation.get_results().unwrap();
-                let web_view_control = unsafe { &mut *sender }.get_results().unwrap();
-                control2.0.control_created(web_view_control);
-                if let Some(callback) = callback.0.take() {
-                    // XXX: unnecessary clone here, because this closure is FnMut rather than
-                    // FnOnce as it could in theory safely be.
-                    callback(control2.0.clone());
-                }
-                Ok(())
-            }))
+            .set_completed(&AsyncOperationCompletedHandler::new(
+                move |sender, _args| {
+                    // When it doesn’t require Send, the following four lines should reduce to this:
+                    // control = operation.get_results().unwrap();
+                    let web_view_control = unsafe { &mut *sender }.get_results().unwrap();
+                    control2.0.control_created(web_view_control);
+                    if let Some(callback) = callback.0.take() {
+                        // XXX: unnecessary clone here, because this closure is FnMut rather than
+                        // FnOnce as it could in theory safely be.
+                        callback(control2.0.clone());
+                    }
+                    Ok(())
+                },
+            ))
             .unwrap();
 
         Ok(control)
@@ -311,8 +304,16 @@ impl ControlInner {
             return Err(Error::Io(io::Error::last_os_error()));
         }
         self.update_bounds_from_rect(Rect {
-            X: if self.is_window_hwnd { 0.0 } else { rect.left as f32 },
-            Y: if self.is_window_hwnd { 0.0 } else { rect.top as f32 },
+            X: if self.is_window_hwnd {
+                0.0
+            } else {
+                rect.left as f32
+            },
+            Y: if self.is_window_hwnd {
+                0.0
+            } else {
+                rect.top as f32
+            },
             Width: (rect.right - rect.left) as f32,
             Height: (rect.bottom - rect.top) as f32,
         })
@@ -342,8 +343,11 @@ impl Control {
         }
     }
 
-    pub fn resize(&self, position: Option<(i32, i32)>, size: Option<(i32, i32)>)
-    -> Result<(), Error> {
+    pub fn resize(
+        &self,
+        position: Option<(i32, i32)>,
+        size: Option<(i32, i32)>,
+    ) -> Result<(), Error> {
         let mut inner = self.inner.borrow_mut();
         if !inner.is_window_hwnd {
             let (x, y) = position.unwrap_or((0, 0));
@@ -356,15 +360,7 @@ impl Control {
                 flags |= winuser::SWP_NOSIZE;
             }
             unsafe {
-                winuser::SetWindowPos(
-                    inner.hwnd,
-                    ptr::null_mut(),
-                    x,
-                    y,
-                    width,
-                    height,
-                    flags,
-                );
+                winuser::SetWindowPos(inner.hwnd, ptr::null_mut(), x, y, width, height, flags);
                 winuser::UpdateWindow(inner.hwnd);
             }
         }
@@ -408,9 +404,7 @@ impl WebView for Control {
     type Error = winrt::Error;
     fn navigate(&self, url: &str) -> Result<(), winrt::Error> {
         if let Some(ref control) = self.inner.borrow().control {
-            control.navigate(
-                &*Uri::create_uri(&FastHString::from(&*url))?,
-            )?;
+            control.navigate(&*Uri::create_uri(&FastHString::from(&*url))?)?;
         }
         Ok(())
     }
@@ -423,7 +417,6 @@ pub struct EdgeWebViewControl {
 // The methods commented out need a new release of the winrt crate, and then typically some fixup
 // because I haven’t sorted their signatures out.
 impl EdgeWebViewControl {
-
     // --- Properties ---
 
     /// Returns true if the control is functioning and go_back() can work.
@@ -439,7 +432,9 @@ impl EdgeWebViewControl {
     /// Returns true if the control is functioning and contains an element that wants to be
     /// fullscreen.
     pub fn contains_full_screen_element(&self) -> bool {
-        self.control.get_contains_full_screen_element().unwrap_or(false)
+        self.control
+            .get_contains_full_screen_element()
+            .unwrap_or(false)
     }
 
     // pub fn default_background_color(&self) {
@@ -458,7 +453,10 @@ impl EdgeWebViewControl {
     ///
     /// Returns an empty string if the control is not functioning.
     pub fn document_title(&self) -> String {
-        self.control.get_document_title().map(|s| s.to_string()).unwrap_or(String::new())
+        self.control
+            .get_document_title()
+            .map(|s| s.to_string())
+            .unwrap_or(String::new())
     }
 
     // /// Sets the zoom factor for the contents of the control.
@@ -520,18 +518,22 @@ impl EdgeWebViewControl {
     }
     */
 
-    pub fn add_contains_full_screen_element_changed<F>(&self, f: F)
-        -> Result<EventRegistrationToken, winrt::Error>
-        where F: FnMut(bool) + 'static
+    pub fn add_contains_full_screen_element_changed<F>(
+        &self,
+        f: F,
+    ) -> Result<EventRegistrationToken, winrt::Error>
+    where
+        F: FnMut(bool) + 'static,
     {
         let mut f = FakeSend(f);
-        self.control.add_contains_full_screen_element_changed(&TypedEventHandler::new(
-            move |sender: *mut IWebViewControl, _args| {
-                let sender = unsafe { &mut *sender };
-                f.0(sender.get_contains_full_screen_element()?);
-                Ok(())
-            }
-        ))
+        self.control
+            .add_contains_full_screen_element_changed(&TypedEventHandler::new(
+                move |sender: *mut IWebViewControl, _args| {
+                    let sender = unsafe { &mut *sender };
+                    f.0(sender.get_contains_full_screen_element()?);
+                    Ok(())
+                },
+            ))
     }
 
     /*
@@ -570,7 +572,8 @@ impl EdgeWebViewControl {
     /// window.external.notify(string)
     /// ```
     pub fn add_script_notify<F>(&self, f: F) -> Result<EventRegistrationToken, winrt::Error>
-    where F: FnMut(String) + 'static
+    where
+        F: FnMut(String) + 'static,
     {
         // I do not know whether TypedEventHandler is unconditionally handled in the same thread or
         // not; but for our case at least, we do not need its Sendness. Let’s live dangerously!
@@ -582,7 +585,7 @@ impl EdgeWebViewControl {
                 let value = args.get_value().map(|s| s.to_string())?;
                 f.0(value);
                 Ok(())
-            }
+            },
         ))
     }
 

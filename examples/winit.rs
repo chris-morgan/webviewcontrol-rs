@@ -5,8 +5,8 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use winit::platform::desktop::EventLoopExtDesktop;
 use winit::window::WindowBuilder;
 
-use webviewcontrol::edge::{self, runtime_context, Process, Control, WebView};
-use webviewcontrol::edge_winit::{HwndType, new_control};
+use webviewcontrol::edge::{self, runtime_context, Control, Process, WebView};
+use webviewcontrol::edge_winit::{new_control, HwndType};
 
 fn main() {
     let _rt = runtime_context();
@@ -39,9 +39,7 @@ fn main() {
         None,
         Some(move |control: Control| {
             println!("Control created!");
-            control
-                .navigate(&url)
-                .unwrap();
+            control.navigate(&url).unwrap();
         }),
     )
     .unwrap();

@@ -34,7 +34,7 @@ impl std::error::Error for Error {
         match *self {
             Error::Io(ref err) => Some(err),
             #[cfg(all(windows, feature = "edgehtml"))]
-            Error::Rt(_) => None,  // Doesn’t implement std::error::Error
+            Error::Rt(_) => None, // Doesn’t implement std::error::Error
         }
     }
 }
