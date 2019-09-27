@@ -5,11 +5,11 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use winit::platform::desktop::EventLoopExtDesktop;
 use winit::window::WindowBuilder;
 
-use webviewcontrol::edge::{self, runtime_context, Control, Process, WebView};
+use webviewcontrol::edge::{self, init_single_threaded_apartment, Control, Process, WebView};
 use webviewcontrol::edge_winit::{new_control, HwndType};
 
 fn main() {
-    let _rt = runtime_context();
+    init_single_threaded_apartment();
 
     if !edge::is_available() {
         panic!("EdgeHTML control is not available!");

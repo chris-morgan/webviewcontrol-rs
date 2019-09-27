@@ -41,10 +41,8 @@ use std::rc::Rc;
 
 use winapi::shared::minwindef::{HINSTANCE, UINT};
 use winapi::shared::windef::{HWND, RECT};
-use winapi::shared::winerror::{S_FALSE, S_OK};
 use winapi::um::winnt::LPCWSTR;
 use winapi::um::{libloaderapi, winuser};
-use winapi::winrt::roapi::{RoInitialize, RO_INIT_SINGLETHREADED};
 
 use winrt::windows::foundation::{
     metadata::ApiInformation, AsyncOperationCompletedHandler, EventRegistrationToken, Rect,
@@ -56,7 +54,7 @@ use winrt::windows::web::ui::{
     //IWebViewControl2,
     WebViewControlScriptNotifyEventArgs,
 };
-use winrt::{ComPtr, FastHString, RtDefaultConstructible, RuntimeContext};
+use winrt::{ApartmentType, ComPtr, FastHString, RtDefaultConstructible};
 
 use crate::error::Error;
 
@@ -165,17 +163,10 @@ fn new_hwnd(parent: HWND, position: (i32, i32), size: (i32, i32)) -> Result<HWND
     Ok(handle)
 }
 
-/// Initialize a single-threaded winrt context. This must be called before instantiating a control.
-pub fn runtime_context() -> RuntimeContext {
-    // RuntimeContext::init() does RO_INIT_MULTITHREADED, but we need a single-threaded context.
-    // See https://github.com/contextfree/winrt-rust/issues/62 for details.
-    let hr = unsafe { RoInitialize(RO_INIT_SINGLETHREADED) };
-    assert!(
-        hr == S_OK || hr == S_FALSE,
-        "failed to call RoInitialize: error {}",
-        hr
-    );
-    unsafe { mem::transmute::<(), RuntimeContext>(()) }
+/// Initialize a single-threaded winrt context. This must be called before instantiating a control,
+/// or it’ll default to the multi-threaded apartment type, which doesn’t work for EdgeHTML.
+pub fn init_single_threaded_apartment() {
+    winrt::init_apartment(ApartmentType::STA);
 }
 
 /// What HWND to associate the WebViewControl with, and how to handle resizing.
