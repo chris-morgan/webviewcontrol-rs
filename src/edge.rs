@@ -39,10 +39,10 @@ use std::mem;
 use std::ptr;
 use std::rc::Rc;
 
-use winapi::shared::minwindef::{HINSTANCE, UINT};
+use winapi::shared::minwindef::UINT;
 use winapi::shared::windef::{HWND, RECT};
 use winapi::um::winnt::LPCWSTR;
-use winapi::um::{libloaderapi, winuser};
+use winapi::um::winuser;
 
 use winrt::windows::foundation::{
     metadata::ApiInformation, AsyncOperationCompletedHandler, EventRegistrationToken, Rect,
@@ -69,12 +69,7 @@ use crate::error::Error;
 struct FakeSend<T>(T);
 unsafe impl<T> Send for FakeSend<T> {}
 
-struct HInstanceWrapper(HINSTANCE);
-unsafe impl Sync for HInstanceWrapper {}
-lazy_static! {
-    static ref OUR_HINSTANCE: HInstanceWrapper =
-        HInstanceWrapper(unsafe { libloaderapi::GetModuleHandleW(ptr::null()) });
-}
+use crate::windows::OUR_HINSTANCE;
 
 // L"WebViewControl Host"
 static HOST_CLASS_NAME: [u16; 20] = [

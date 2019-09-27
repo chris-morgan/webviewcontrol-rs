@@ -21,7 +21,7 @@ mshtml = [] # TODO
 #cocoa = []
 
 [dependencies]
-lazy_static = "1.2.0"
+once_cell = "1.2.0"
 
 [dependencies.winit]
 version = "0.20.0-alpha3"
